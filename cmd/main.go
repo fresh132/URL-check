@@ -12,12 +12,25 @@ import (
 	"github.com/fresh132/URL-check/internal/api"
 	"github.com/fresh132/URL-check/internal/config"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	godotenv.Load()
+
 	port := os.Getenv("PORT")
 
+	if port == "" {
+		port = "8080"
+	}
+
 	config.Load()
+
+	mode := os.Getenv("GIN_MODE")
+	if mode == "" {
+		mode = gin.ReleaseMode
+	}
+	gin.SetMode(mode)
 
 	r := gin.Default()
 
@@ -30,10 +43,10 @@ func main() {
 	}
 
 	go func() {
-		log.Println("Server started on port:", srv.Addr)
+		log.Println("Server started on port:", port)
 
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Error starting server: %v", err)
+			log.Println("Error starting server:", err)
 		}
 	}()
 
@@ -44,7 +57,7 @@ func main() {
 
 	log.Println("Down server...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
 	defer cancel()
 
@@ -54,7 +67,6 @@ func main() {
 		srv.Close()
 
 	} else {
-		config.Save()
 		log.Println("Server stopped")
 	}
 }

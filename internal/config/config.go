@@ -75,7 +75,7 @@ func CheckURL(url string) string {
 	req, err := http.NewRequestWithContext(ctx, "HEAD", url, nil)
 
 	if err != nil {
-		return "Недоступен"
+		return "Unavailable"
 	}
 
 	res, err := http.DefaultClient.Do(req)
@@ -83,17 +83,17 @@ func CheckURL(url string) string {
 
 		req2, err2 := http.NewRequestWithContext(ctx, "GET", url, nil)
 		if err2 != nil {
-			return "Недоступен"
+			return "Unavailable"
 		}
 
 		res2, err2 := http.DefaultClient.Do(req2)
 
 		if err2 != nil || res2.StatusCode >= 400 {
-			return "Недоступен"
+			return "Unavailable"
 		}
 
-		return "Подключение успешно выполнено"
+		return "Connected OK"
 	}
 
-	return "Подключение успешно выполнено"
+	return "Connected OK"
 }
