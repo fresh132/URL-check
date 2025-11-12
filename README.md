@@ -27,8 +27,8 @@ PORT="8080"
 GIN_MODE="release" или debug
 ```
 
+## Структура
 ```go
-//Структура
 cmd/
  └── main.go          — точка входа, запуск сервера
 internal/
@@ -53,14 +53,6 @@ POST /check // ручка для проверки доступности url
 GET /report // ручка для формирования pdf отчета
 ```
 
-```bash
-# По конкретным ID
-curl "http://localhost:8080/report?id=1&id=2" --output report.pdf
-
-# Все проверки
-curl "http://localhost:8080/report" --output all.pdf
-```
-
 Пример запросов и ответов к эндпоинту
 POST /check
 
@@ -81,3 +73,15 @@ POST /check
   "id": 1
 }
 ```
+
+POST /report
+
+Запрос
+```json
+{
+  "links_list": ["1", "2"]
+}
+```
+
+Ответ в виде PDF file.
+Если не передать id, то будет формироваться отчет по всем id.
