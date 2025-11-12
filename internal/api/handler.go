@@ -24,6 +24,11 @@ func Check(c *gin.Context) {
 		return
 	}
 
+	if len(req.Url) == 0 || len(req.Url) > 100 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "links count must be 1-100"})
+		return
+	}
+
 	var wg sync.WaitGroup
 
 	statuses := make([]internal.URLstatus, len(req.Url))
