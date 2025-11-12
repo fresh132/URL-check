@@ -18,18 +18,18 @@ import (
 func main() {
 	godotenv.Load()
 
-	port := os.Getenv("PORT")
+	config.Load()
 
+	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 
-	config.Load()
-
 	mode := os.Getenv("GIN_MODE")
 	if mode == "" {
-		mode = gin.ReleaseMode
+		mode = gin.DebugMode
 	}
+
 	gin.SetMode(mode)
 
 	r := gin.Default()
@@ -57,7 +57,7 @@ func main() {
 
 	log.Println("Down server...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 
 	defer cancel()
 
@@ -67,6 +67,7 @@ func main() {
 		srv.Close()
 
 	} else {
+		config.Save()
 		log.Println("Server stopped")
 	}
 }

@@ -5,9 +5,13 @@ import (
 	"testing"
 )
 
-func TestEnvPort(t *testing.T) {
-	os.Setenv("PORT", "3000")
-	if got := os.Getenv("PORT"); got != "3000" {
-		t.Fatalf("expected 3000, got %s", got)
+func TestMainPortDefault(t *testing.T) {
+	os.Unsetenv("PORT")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	if port != "8080" {
+		t.Errorf("expected 8080, got %s", port)
 	}
 }

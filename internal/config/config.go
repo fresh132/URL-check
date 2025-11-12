@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/fresh132/URL-check/internal"
@@ -68,32 +69,53 @@ func Save() {
 }
 
 func CheckURL(url string) string {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	if url == "" {
+		return "Not available"
+	}
+	if !strings.HasPrefix(url, "http://") && !strings.HasPrefix(url, "https://") {
+		return "Not available"
+	}
 
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+
+	client := &http.Client{
+		Timeout: 5 * time.Second,
+	}
 
 	req, err := http.NewRequestWithContext(ctx, "HEAD", url, nil)
 
 	if err != nil {
-		return "Unavailable"
+		return "Not available"
 	}
 
-	res, err := http.DefaultClient.Do(req)
-	if err != nil || res.StatusCode >= 400 {
+	res, err := client.Do(req)
 
-		req2, err2 := http.NewRequestWithContext(ctx, "GET", url, nil)
-		if err2 != nil {
-			return "Unavailable"
-		}
-
-		res2, err2 := http.DefaultClient.Do(req2)
-
-		if err2 != nil || res2.StatusCode >= 400 {
-			return "Unavailable"
-		}
-
-		return "Connected OK"
+	if err == nil && res.StatusCode < 400 {
+		res.Body.Close()
+		return "Available"
 	}
 
-	return "Connected OK"
+	if res != nil {
+		res.Body.Close()
+	}
+
+	req, err = http.NewRequestWithContext(ctx, "GET", url, nil)
+
+	if err != nil {
+		return "Not available"
+	}
+
+	res, err = client.Do(req)
+
+	if err == nil && res.StatusCode < 400 {
+		res.Body.Close()
+		return "Available"
+	}
+
+	if res != nil {
+		res.Body.Close()
+	}
+
+	return "Not available"
 }

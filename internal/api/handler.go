@@ -16,7 +16,7 @@ import (
 
 func Check(c *gin.Context) {
 	var req struct {
-		Url []string `json:"url" binding:"required"`
+		Url []string `json:"links" binding:"required"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil || len(req.Url) == 0 {
@@ -54,13 +54,11 @@ func Check(c *gin.Context) {
 		"statuses": statuses,
 		"id":       id,
 	})
-
-	config.Save()
 }
 
 func Report(c *gin.Context) {
 	var req struct {
-		Links_num []string `json:"url" binding:"required"`
+		Links_num []string `json:"links_list" binding:"required"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -69,6 +67,8 @@ func Report(c *gin.Context) {
 	}
 
 	internal.Mutx.Lock()
+	defer internal.Mutx.Unlock()
+
 	var reports []internal.TimeURL
 	var ids []int
 
@@ -82,7 +82,6 @@ func Report(c *gin.Context) {
 			intid, err := strconv.Atoi(strid)
 
 			if err != nil {
-				internal.Mutx.Unlock()
 				c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 				return
 			}
@@ -92,7 +91,6 @@ func Report(c *gin.Context) {
 			}
 		}
 	}
-	internal.Mutx.Unlock()
 
 	if len(reports) == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"error": "No data found"})
@@ -123,5 +121,10 @@ func Report(c *gin.Context) {
 
 	if err := pdf.Output(c.Writer); err != nil {
 		log.Println("PDF generation error:", err)
+
+		if !c.Writer.Written() {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate PDF"})
+		}
+		return
 	}
 }

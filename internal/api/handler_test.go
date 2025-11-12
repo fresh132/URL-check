@@ -21,7 +21,7 @@ func setupRouter() *gin.Engine {
 
 func TestCheck_ValidRequest(t *testing.T) {
 	r := setupRouter()
-	body, _ := json.Marshal(map[string][]string{"url": {"https://example.com"}})
+	body, _ := json.Marshal(map[string][]string{"links": {"https://example.com"}})
 	req, _ := http.NewRequest("POST", "/check", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 
@@ -38,7 +38,7 @@ func TestCheck_ValidRequest(t *testing.T) {
 
 func TestCheck_EmptyRequest(t *testing.T) {
 	r := setupRouter()
-	body, _ := json.Marshal(map[string][]string{"url": {}})
+	body, _ := json.Marshal(map[string][]string{"links": {}})
 	req, _ := http.NewRequest("POST", "/check", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 
