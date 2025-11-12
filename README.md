@@ -26,6 +26,7 @@ go run cmd/main.go
 PORT="8080"
 GIN_MODE="release" или debug
 ```
+
 ```go
 //Структура
 cmd/
@@ -45,36 +46,33 @@ internal/
 
 Graceful Shutdown работает по принципу: закрывает доступ к новым запросам и ожидает завершения текущих в течении 60 секунд
 
-## Эндроинты
+## Эндпоинты
 
 ```go
 POST /check // ручка для проверки доступности url
-POST /report // ручка для формирования pdf отчета
+GET /report // ручка для формирования pdf отчета
 ```
 
 ```bash
-# Проверка ссылок
-curl -X POST http://localhost:8080/check \
-  -H "Content-Type: application/json" \
-  -d '{"links": ["https://google.com", "https://httpstat.us/404"]}'
+# По конкретным ID
+curl "http://localhost:8080/report?id=1&id=2" --output report.pdf
 
-# Получение отчёта
-curl -X POST http://localhost:8080/report \
-  -H "Content-Type: application/json" \
-  -d '{"links_list": ["1"]}' \
-  --output report.pdf
+# Все проверки
+curl "http://localhost:8080/report" --output all.pdf
 ```
 
-
-Пример запросов и ответов к обоим эндпоинтам
+Пример запросов и ответов к эндпоинту
 POST /check
 
+Запрос
 ```json
 {
   "links": ["https://google.com", "https://youtube.com"]
 }
+```
 
-
+Ответ
+```json
 {
   "statuses": [
     {"url": "https://google.com", "status": "Available"},
@@ -83,12 +81,3 @@ POST /check
   "id": 1
 }
 ```
-
-//GET /report
-```json
-{
-  "links_list": ["1", "2"] 
-}
-```
-Ответ в виде PDF file 
-Если не писать ничего в списке [""] вернуться все хранящиеся данные

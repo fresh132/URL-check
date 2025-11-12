@@ -62,14 +62,7 @@ func Check(c *gin.Context) {
 }
 
 func Report(c *gin.Context) {
-	var req struct {
-		Links_num []string `json:"links_list" binding:"required"`
-	}
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
-		return
-	}
+	IdStr := c.QueryArray("id")
 
 	internal.Mutx.Lock()
 	defer internal.Mutx.Unlock()
@@ -77,19 +70,20 @@ func Report(c *gin.Context) {
 	var reports []internal.TimeURL
 	var ids []int
 
-	if len(req.Links_num) == 0 || (len(req.Links_num) == 1 && req.Links_num[0] == "") {
+	if len(IdStr) == 0 {
 		for id, batch := range internal.Data {
 			reports = append(reports, batch)
 			ids = append(ids, id)
 		}
 	} else {
-		for _, strid := range req.Links_num {
-			intid, err := strconv.Atoi(strid)
+		for _, str := range IdStr {
+			intid, err := strconv.Atoi(str)
 
-			if err != nil {
+			if err != nil || intid <= 0 {
 				c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 				return
 			}
+
 			if batch, ok := internal.Data[intid]; ok {
 				reports = append(reports, batch)
 				ids = append(ids, intid)

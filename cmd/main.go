@@ -35,7 +35,7 @@ func main() {
 	r := gin.Default()
 
 	r.POST("/check", api.Check)
-	r.POST("/report", api.Report)
+	r.GET("/report", api.Report)
 
 	srv := &http.Server{
 		Addr:    ":" + port,
