@@ -65,13 +65,16 @@ curl -X POST http://localhost:8080/report \
   --output report.pdf
 ```
 
+
+Пример запросов и ответов к обоим эндпоинтам
+POST /check
+
 ```json
-//Пример запросов к обоим эндпоинтам
-//POST /check
 {
   "links": ["https://google.com", "https://youtube.com"]
 }
-// Ответ
+
+
 {
   "statuses": [
     {"url": "https://google.com", "status": "Available"},
@@ -79,11 +82,13 @@ curl -X POST http://localhost:8080/report \
   ],
   "id": 1
 }
+```
 
 //GET /report
+```json
 {
-  "links_list": ["1", "2"] // или [""] тогда будет сформирован pdf отчет по всем ссылкам
+  "links_list": ["1", "2"] 
 }
-// Ответ
-// PDF file 
 ```
+Ответ в виде PDF file 
+Если не писать ничего в списке [""] вернуться все хранящиеся данные
